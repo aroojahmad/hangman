@@ -35,9 +35,29 @@ defmodule Hangman.Impl.Game do
 ####################
 
 @spec make_move(t, String.t) :: { t, Type.tally }
-  def make_move(game = %{game_state: :won}, _guess) do
-    { game, tally(game) }
+  def make_move(game = %{game_state: state}, _guess)
+  when state in [:won, :lost] do
+    game
+    |> return_with_tally()
   end
+
+  def make_move(game, guess) do
+    accept_guess(game, guess, MapSet.member?(game.used, guess)) ##returns true or false
+    |> return_with_tally()
+  end
+
+####################
+
+defp accept_guess(game, _guess, _already_used = true) do
+  %{ game | game_state: :already_used }
+end
+
+defp accept_guess(game, guess, _already_used) do
+  %{ game | used: MapSet.put(game.used, guess) }
+end
+
+####################
+
 
   defp tally (game) do
     %{
@@ -46,6 +66,10 @@ defmodule Hangman.Impl.Game do
       letters: [],
       used: game.used |> MapSet.to_list |> Enum.sort
     }
+  end
+
+  defp return_with_tally(game) do
+    { game, tally(game) }
   end
 
 end
