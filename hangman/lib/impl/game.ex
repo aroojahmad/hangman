@@ -19,12 +19,13 @@ defmodule Hangman.Impl.Game do
 
   ####################
 
+  #starts new game, chooses a random word
   @spec new_game() :: t
   def new_game do
     new_game(Dictionary.random_word)
   end
 
-
+  #passes in the word to check
   @spec new_game(String.t) :: t
   def new_game(word) do
     %__MODULE__{
@@ -54,9 +55,21 @@ end
 
 defp accept_guess(game, guess, _already_used) do
   %{ game | used: MapSet.put(game.used, guess) }
+  |> score_guess(Enum.member?(game.letters, guess))
 end
 
 ####################
+
+defp score_guess(game, _good_guess = true) do
+  #guessed all letters? --> :won | :good_guess
+  new_state = maybe_won(MapSet.subset?(MapSet.new(game.letters), game.used))
+  %{game | game_state: new_state}
+end
+
+defp score_guess(game, _bad_guess) do
+  #turns_left = 1 -> lost | dec turns_left, :bad_guess
+  game
+end
 
 
   defp tally (game) do
@@ -71,5 +84,8 @@ end
   defp return_with_tally(game) do
     { game, tally(game) }
   end
+
+  defp maybe_won(true), do: :won
+  defp maybe_won(_), do: :good_guess
 
 end

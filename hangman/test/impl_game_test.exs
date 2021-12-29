@@ -37,4 +37,20 @@ test  "a duplicate letter is reported" do
   assert game.game_state == :already_used
 end
 
+test "we record letters used" do
+  game = Game.new_game()
+  {game, _tally} = Game.make_move(game, "x")
+  {game, _tally} = Game.make_move(game, "y")
+  {game, _tally} = Game.make_move(game, "x")
+  assert MapSet.equal?(game.used, MapSet.new(["x", "y"]))
+end
+
+test "we recognize a letter in the word" do
+  game = Game.new_game("wombat")
+  { _game, tally } = Game.make_move(game, "t")
+  assert tally.game_state == :good_guess
+  { _game, tally } = Game.make_move(game, "m")
+  assert tally.game_state == :good_guess
+end
+
 end
