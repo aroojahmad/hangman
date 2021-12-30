@@ -1,24 +1,18 @@
 defmodule Dictionary.Impl.WordList do
-  #module attribute created at compile time
 
-  @type t :: list(String)
+  @type t :: list(String.t)
 
-  @spec word_list() :: t
+  @spec word_list :: t
   def word_list do
-    "assets/words.txt"
-  |> File.read!()
-  |> String.split(~r/\n/, trim: true)
+    "../../assets/words.txt"
+    |> Path.expand(__DIR__)
+    |> File.read!()
+    |> String.split( ~r/\n/, trim: true)
   end
 
-
-
-  #transforming word list
   @spec random_word(t) :: String.t
   def random_word(word_list) do
     word_list
     |> Enum.random()
   end
-
-
-
 end
